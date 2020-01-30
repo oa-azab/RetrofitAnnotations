@@ -1,0 +1,2 @@
+include ':sample', ':retrofitannotations'
+rootProject.name='RetrofitAnnotations'
