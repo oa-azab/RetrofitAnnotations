@@ -39,6 +39,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation project(":retrofitannotations")
+    // implementation 'com.github.oa-azab:RetrofitAnnotations:-SNAPSHOT'
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.7.1'

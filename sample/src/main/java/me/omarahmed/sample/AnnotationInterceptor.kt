@@ -14,6 +14,7 @@ class AnnotationInterceptor(private val store: DefaultStore<CustomAnnotation>) :
         val annotation = store.get(requestId)
         annotation?.let {
             Timber.d("annotation is $it")
+            Timber.d("annotation message = ${it.message}")
         }
         return chain.proceed(chain.request())
     }
