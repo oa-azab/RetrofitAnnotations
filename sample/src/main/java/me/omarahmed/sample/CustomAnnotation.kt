@@ -5,4 +5,4 @@ package me.omarahmed.sample
     AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.RUNTIME)
-annotation class AuthLevel(val level: Int)
+annotation class CustomAnnotation(val message: String)

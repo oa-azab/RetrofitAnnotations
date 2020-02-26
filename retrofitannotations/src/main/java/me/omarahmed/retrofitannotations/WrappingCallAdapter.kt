@@ -1,6 +1,5 @@
 package me.omarahmed.retrofitannotations
 
-import android.util.Log
 import retrofit2.Call
 import retrofit2.CallAdapter
 import java.lang.reflect.Type
@@ -14,10 +13,7 @@ class WrappingCallAdapter<Any, RETURN_TYPE, ID, T>(
 
     override fun adapt(call: Call<Any>): RETURN_TYPE {
         val requestId = store.getRequestId(call.request())
-
-        Log.d("adapt", "[adapt] requestId = $requestId, and authLevel = $annotation")
         store.put(requestId, annotation)
-
         return adapter.adapt(call)
     }
 

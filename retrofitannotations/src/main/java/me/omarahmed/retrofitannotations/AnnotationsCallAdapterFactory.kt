@@ -5,19 +5,11 @@ import retrofit2.Retrofit
 import java.lang.reflect.Type
 
 
-class AnnotationsCallAdapterFactory<ID, T> private constructor(
+class AnnotationsCallAdapterFactory<ID, T> internal constructor(
     private val store: Store<ID, T>,
     private val annotationClass: Class<T>
 ) :
     CallAdapter.Factory() {
-
-    companion object {
-        fun <ID, T> getRetrofitBuilder(store: Store<ID, T>, annotationClass: Class<T>): Retrofit.Builder {
-            val adapter = AnnotationsCallAdapterFactory(store, annotationClass)
-            return Retrofit.Builder()
-                .addCallAdapterFactory(adapter)
-        }
-    }
 
     override fun get(
         returnType: Type,

@@ -1,16 +1,13 @@
 package me.omarahmed.sample
 
-import com.google.gson.GsonBuilder
+import com.squareup.moshi.Json
 import io.reactivex.Single
-import me.omarahmed.retrofitannotations.AnnotationsCallAdapterFactory
 import me.omarahmed.retrofitannotations.DefaultStore
-import okhttp3.Interceptor
+import me.omarahmed.retrofitannotations.RetrofitAnnotations
 import okhttp3.OkHttpClient
-import okhttp3.Response
-import retrofit2.Call
-import retrofit2.Retrofit
+import retrofit2.Response
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import timber.log.Timber
@@ -20,30 +17,25 @@ class TestApi {
 
     companion object {
 
+        private const val BASE_URL = "http://worldtimeapi.org/"
         private var service: TestService? = null
-        private val store = DefaultStore<AuthLevel>()
+        private val store = DefaultStore<CustomAnnotation>()
         private val lock = Any()
 
         fun getService(): TestService {
             synchronized(lock) {
                 if (service == null) {
-                    val gson = GsonBuilder()
-                        .setLenient()
-                        .create()
-
                     val httpClient = OkHttpClient.Builder()
-                        .addInterceptor(AuthInterceptor(store))
+                        .addInterceptor(AnnotationInterceptor(store))
                         .build()
 
-                    val retrofit = AnnotationsCallAdapterFactory
-                        .getRetrofitBuilder(store, AuthLevel::class.java)
-                        .baseUrl("https://testnumberone.free.beeceptor.com")
+                    val retrofit = RetrofitAnnotations.builder(store, CustomAnnotation::class.java)
+                        .baseUrl(BASE_URL)
                         .addConverterFactory(ScalarsConverterFactory.create())
-                        .addConverterFactory(GsonConverterFactory.create(gson))
+                        .addConverterFactory(MoshiConverterFactory.create())
                         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .client(httpClient)
                         .build()
-
 
                     Timber.d("Factories = ${retrofit.callAdapterFactories()}")
                     Timber.d("Factories size = ${retrofit.callAdapterFactories().size}")
@@ -57,28 +49,11 @@ class TestApi {
 
     interface TestService {
 
-        @AuthLevel(1)
-        @GET("my/api/path")
-        fun getText(): Call<String>
-
-        @AuthLevel(1)
-        @GET("my/api/path")
-        fun getText2(): Single<String>
+        @CustomAnnotation("custom message")
+        @GET("api/ip")
+        fun getTime(): Single<Response<TimeResponse>>
 
     }
 
-    class AuthInterceptor(private val store: DefaultStore<AuthLevel>) : Interceptor {
-
-        override fun intercept(chain: Interceptor.Chain): Response {
-            Timber.d("[intercept] intercepted request ${chain.request().url()}")
-            val requestId = store.getRequestId(chain.request())
-            Timber.d("[intercept] its id = $requestId")
-            val authLevel = store.get(requestId)
-            authLevel?.let {
-                Timber.d("[intercept] authLevel is $it")
-            }
-            return chain.proceed(chain.request())
-        }
-
-    }
+    data class TimeResponse(@field:Json(name = "unixtime") val unixTime: Long)
 }
